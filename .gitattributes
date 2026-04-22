@@ -14,6 +14,10 @@ pacman.conf    text eol=lf
 packages.*     text eol=lf
 Dockerfile*    text eol=lf
 airootfs/usr/local/bin/*  text eol=lf
+airootfs/etc/shadow       text eol=lf
+airootfs/etc/passwd       text eol=lf
+airootfs/etc/gshadow      text eol=lf
+airootfs/etc/group        text eol=lf
 grub/grub.cfg  text eol=lf
 
 # Windows-only files keep CRLF
