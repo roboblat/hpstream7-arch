@@ -9,6 +9,10 @@ linux
 linux-firmware
 # linux-headers needed for RTL8723BS DKMS build
 linux-headers
+# Explicit provider picks (prevents interactive pacman prompts)
+mkinitcpio
+iptables
+pipewire-jack
 
 # ── Boot & EFI ───────────────────────────
 grub
@@ -76,7 +80,7 @@ openbox
 bluez
 bluez-utils
 blueman
-pulseaudio-bluetooth
+# pipewire handles BT audio natively via wireplumber — no pulseaudio-bluetooth
 
 # ── Touch / accessibility ────────────────
 onboard
