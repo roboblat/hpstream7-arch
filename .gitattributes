@@ -1,0 +1,21 @@
+# Force LF endings on everything that runs in Linux.
+# CRLF would break shell scripts and systemd units in the build container.
+*.sh       text eol=lf
+*.service  text eol=lf
+*.conf     text eol=lf
+*.toml     text eol=lf
+*.yml      text eol=lf
+*.rules    text eol=lf
+*.desktop  text eol=lf
+.zshrc     text eol=lf
+autostart  text eol=lf
+profiledef.sh  text eol=lf
+pacman.conf    text eol=lf
+packages.*     text eol=lf
+Dockerfile*    text eol=lf
+airootfs/usr/local/bin/*  text eol=lf
+grub/grub.cfg  text eol=lf
+
+# Windows-only files keep CRLF
+*.ps1      text eol=crlf
+*.md       text
