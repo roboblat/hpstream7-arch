@@ -18,12 +18,6 @@ die()   { echo -e "${RED}[ERROR]${NC} $*" >&2; exit 1; }
 # ── preflight ─────────────────────────────────────────────────────────────────
 [[ $EUID -eq 0 ]] || die "Run as root: sudo ./scripts/build.sh"
 command -v mkarchiso &>/dev/null || die "archiso not installed. Run: pacman -S archiso"
-command -v grub-install &>/dev/null || die "grub not installed. Run: pacman -S grub"
-
-# The ia32 GRUB EFI target requires grub's i386-efi platform files.
-# On most Arch hosts these are in /usr/lib/grub/i386-efi (part of grub package).
-[[ -d /usr/lib/grub/i386-efi ]] || \
-    die "/usr/lib/grub/i386-efi missing. The grub package should provide it."
 
 # ── generate vaporwave wallpaper ──────────────────────────────────────────────
 if ! [[ -f "$PROFILE_DIR/airootfs/usr/share/backgrounds/vaporwave/sunset.png" ]]; then
@@ -51,58 +45,11 @@ mkarchiso \
     -o "$OUT_DIR" \
     "$PROFILE_DIR"
 
-# ── ia32 GRUB EFI injection ───────────────────────────────────────────────────
-# mkarchiso only writes grubx64.efi by default.
-# The HP Stream 7 needs bootia32.efi (32-bit UEFI), so we inject it here
-# by mounting the ESP image from the freshly built ISO and adding the file.
+# ── find ISO ──────────────────────────────────────────────────────────────────
+# Note: uefi-ia32.grub.esp in profiledef.sh already makes mkarchiso build
+# and embed BOOTIA32.EFI with correct label substitution. No post-processing needed.
 ISO="$(ls -t "$OUT_DIR"/*.iso | head -1)"
 [[ -f "$ISO" ]] || die "ISO not found in $OUT_DIR"
-
-info "Injecting 32-bit GRUB EFI into $ISO ..."
-MOUNTDIR=$(mktemp -d)
-# xorriso can patch an ISO in place
-xorriso -osirrox on \
-    -indev "$ISO" -outdev "$ISO" \
-    -boot_image any replay \
-    -find / -name "EFI" -exec echo "EFI dir found" \; \
-    -- \
-    2>/dev/null || true
-
-# Alternative: rebuild the ESP from scratch and embed bootia32.efi
-ESP_IMG=$(mktemp)
-# Extract the existing ESP image
-xorriso -osirrox on -indev "$ISO" \
-    -extract /EFI/BOOT/BOOTx64.efi /dev/null 2>/dev/null || true
-
-# Build bootia32.efi
-GRUB_CFG=$(mktemp)
-cat > "$GRUB_CFG" << 'GCFG'
-search --no-floppy --set=root --label %ARCHISO_LABEL%
-set prefix=($root)/boot/grub
-source $prefix/grub.cfg
-GCFG
-grub-mkimage \
-    --format=i386-efi \
-    --output="$MOUNTDIR/bootia32.efi" \
-    --config="$GRUB_CFG" \
-    --prefix="/EFI/BOOT" \
-    part_gpt part_msdos fat iso9660 udf \
-    ext2 btrfs f2fs \
-    linux normal chain boot configfile \
-    loopback ls search search_fs_uuid \
-    search_fs_file search_label \
-    help echo test \
-    all_video gfxterm gfxmenu \
-    font png
-
-# Inject bootia32.efi into the ISO
-xorriso -dev "$ISO" \
-    -map "$MOUNTDIR/bootia32.efi" "/EFI/BOOT/BOOTIA32.EFI" \
-    -commit 2>/dev/null || \
-warn "xorriso inject failed — BOOTIA32.EFI was not added. \
-You may need to add it manually with osirrox."
-
-rm -rf "$MOUNTDIR" "$GRUB_CFG" "$ESP_IMG"
 
 # ── summary ───────────────────────────────────────────────────────────────────
 ISO_SIZE=$(du -sh "$ISO" | cut -f1)
