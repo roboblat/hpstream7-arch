@@ -91,9 +91,9 @@ grub-mkimage \
     linux normal chain boot configfile \
     loopback ls search search_fs_uuid \
     search_fs_file search_label \
-    help echo test true false \
-    all_video gfxterm gfxmenu gfxterm_background \
-    font png jpeg
+    help echo test \
+    all_video gfxterm gfxmenu \
+    font png
 
 # Inject bootia32.efi into the ISO
 xorriso -dev "$ISO" \

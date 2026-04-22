@@ -130,6 +130,8 @@ upower
 # ── Screen rotation ──────────────────────
 iio-sensor-proxy
 python
+python-dbus
+python-gobject
 
 # ── Misc live-env tools ──────────────────
 gparted

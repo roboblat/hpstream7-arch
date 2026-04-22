@@ -92,15 +92,15 @@ pacstrap -K /mnt \
     xorg-server xorg-xinput xorg-xrandr xorg-xset \
     lxde lxdm lxterminal \
     alacritty zsh zsh-autosuggestions zsh-syntax-highlighting \
-    starship neofetch lolcat figlet btop cmatrix \
+    starship fastfetch lolcat figlet btop cmatrix \
     ttf-jetbrains-mono-nerd ttf-fira-code \
-    papirus-icon-theme arc-gtk-theme feh picom \
-    bluez bluez-utils blueman pulseaudio-bluetooth \
+    papirus-icon-theme adw-gtk-theme feh picom \
+    bluez bluez-utils blueman \
     onboard xdotool xinput_calibrator \
     tlp acpid upower \
-    iio-sensor-proxy python \
-    zram-generator \
-    "${FSTYPE}-tools" || true   # f2fs-tools or e2fsprogs
+    iio-sensor-proxy python python-dbus python-gobject \
+    zram-generator
+[[ "$FSTYPE" == "f2fs" ]] && pacstrap -K /mnt f2fs-tools
 
 # ── fstab ──────────────────────────────────────────────────────────────────────
 info "Generating fstab ..."
