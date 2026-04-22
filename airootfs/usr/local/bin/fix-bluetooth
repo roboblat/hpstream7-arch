@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# ============================================================
+# Fix RTL8723BS Bluetooth on HP Stream 7.
+#
+# The BT side of the RTL8723BS chip sits on a UART serial port
+# (not USB), so btusb can't see it. We have to attach it manually
+# with hciattach and load Realtek firmware.
+# ============================================================
+set -euo pipefail
+
+RED='\033[0;31m'; GRN='\033[0;32m'; YEL='\033[1;33m'; NC='\033[0m'
+info() { echo -e "${GRN}[INFO]${NC}  $*"; }
+warn() { echo -e "${YEL}[WARN]${NC}  $*"; }
+die()  { echo -e "${RED}[ERROR]${NC} $*" >&2; exit 1; }
+
+[[ $EUID -eq 0 ]] || die "Run as root: sudo fix-bluetooth"
+
+# ── 1. firmware present? ──────────────────────────────────────────
+# rtl8723bs_fw.bin + rtl8723bs_config.bin ship in linux-firmware,
+# but the BT-specific rtl8723b_fw.bin lives in rtl_bt/ — also in
+# linux-firmware on modern Arch. Warn if missing.
+for fw in /usr/lib/firmware/rtl_bt/rtl8723b_fw.bin \
+          /usr/lib/firmware/rtl_bt/rtl8723b_config.bin; do
+    if [[ ! -f "$fw" ]]; then
+        warn "Missing firmware: $fw"
+        warn "Install/reinstall the 'linux-firmware' package."
+    fi
+done
+
+# ── 2. correct kernel modules ─────────────────────────────────────
+info "Loading kernel modules ..."
+for mod in hci_uart btrtl bluetooth; do
+    modprobe "$mod" 2>/dev/null || warn "modprobe $mod failed"
+done
+
+# ── 3. find the UART ──────────────────────────────────────────────
+# On the Stream 7 the BT UART is almost always ttyS1, but some
+# BIOS revisions expose it as ttyS2. Probe both.
+UART=""
+for dev in /dev/ttyS1 /dev/ttyS2; do
+    [[ -c "$dev" ]] && { UART="$dev"; break; }
+done
+[[ -n "$UART" ]] || die "No UART device found (tried ttyS1, ttyS2). Check dmesg | grep -i serial"
+info "Using UART: $UART"
+
+# ── 4. kill any existing hciattach ────────────────────────────────
+pkill -x hciattach 2>/dev/null || true
+sleep 1
+
+# ── 5. attach ─────────────────────────────────────────────────────
+info "Attaching HCI over UART (this takes ~3 seconds) ..."
+# bcm43xx protocol at 3 Mbaud with flow control — works for RTL8723BS too
+# because it speaks the same Realtek-extended H5 variant.
+hciattach -n -s 115200 "$UART" bcm43xx 3000000 flow &
+HCIATTACH_PID=$!
+sleep 4
+
+# ── 6. bring the HCI up ───────────────────────────────────────────
+if hciconfig hci0 2>/dev/null | grep -q "UP RUNNING"; then
+    info "hci0 already running."
+else
+    hciconfig hci0 up 2>/dev/null || warn "hciconfig hci0 up failed (may need a moment)"
+    sleep 1
+fi
+
+# ── 7. enable the persistent systemd unit ─────────────────────────
+if systemctl is-enabled rtl8723bs-bluetooth.service &>/dev/null; then
+    info "rtl8723bs-bluetooth.service already enabled."
+else
+    info "Enabling rtl8723bs-bluetooth.service for next boot ..."
+    systemctl enable rtl8723bs-bluetooth.service 2>/dev/null || true
+fi
+
+systemctl start  bluetooth.service 2>/dev/null || true
+systemctl enable bluetooth.service 2>/dev/null || true
+
+# ── 8. verify ─────────────────────────────────────────────────────
+echo ""
+hciconfig -a | head -20 || true
+echo ""
+if hciconfig hci0 2>/dev/null | grep -q "UP RUNNING"; then
+    info "Bluetooth is up!"
+    echo ""
+    echo "  Next step — pair a device:"
+    echo "    bluetoothctl"
+    echo "    > power on"
+    echo "    > agent on"
+    echo "    > scan on"
+    echo "    > pair XX:XX:XX:XX:XX:XX"
+    echo ""
+    echo "  Or use the 'blueman' GUI from the LXDE menu (touch-friendly)."
+else
+    die "hci0 failed to come up. Check: journalctl -u rtl8723bs-bluetooth.service"
+fi

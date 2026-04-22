@@ -1,0 +1,24 @@
+[Unit]
+Description=Attach RTL8723BS Bluetooth over UART (HP Stream 7)
+# Must run before bluetooth.service so BlueZ sees the HCI once it's up
+Before=bluetooth.service
+After=systemd-modules-load.service
+# Only start if the UART device actually exists on this hardware
+ConditionPathExists=/dev/ttyS1
+
+[Service]
+Type=forking
+# Load the required kernel modules first (usually auto-loaded, but be safe)
+ExecStartPre=/sbin/modprobe hci_uart
+ExecStartPre=/sbin/modprobe btrtl
+ExecStartPre=/sbin/modprobe btintel
+# The Stream 7 RTL8723BS BT UART sits at /dev/ttyS1 at 115200 baud,
+# uses the "three-wire" (h5) protocol with Realtek firmware extension.
+ExecStart=/usr/bin/hciattach -n -s 115200 /dev/ttyS1 bcm43xx 3000000 flow
+# Power the HCI up after attach
+ExecStartPost=/bin/sh -c 'sleep 2 && /usr/bin/hciconfig hci0 up || true'
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,88 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║   Alacritty — Vaporwave theme for HP Stream 7                    ║
+# ║   Colors inspired by "Miami Nights 1984" / "Aesthetic" palettes  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+[window]
+padding        = { x = 12, y = 12 }
+opacity        = 0.85
+blur           = true
+decorations    = "none"
+dynamic_title  = true
+title          = "アエステティック"
+dimensions     = { columns = 100, lines = 28 }
+
+[font]
+size = 11.0
+normal      = { family = "JetBrainsMono Nerd Font", style = "Regular" }
+bold        = { family = "JetBrainsMono Nerd Font", style = "Bold" }
+italic      = { family = "JetBrainsMono Nerd Font", style = "Italic" }
+bold_italic = { family = "JetBrainsMono Nerd Font", style = "Bold Italic" }
+
+[cursor]
+style = { shape = "Beam", blinking = "On" }
+blink_interval = 500
+unfocused_hollow = true
+
+# ── Vaporwave palette ──────────────────────────────────────────────
+# deep magenta / cyan / pastel pink / soft teal — neon sunset vibes
+
+[colors.primary]
+background = "#1a0933"      # deep purple-black void
+foreground = "#f7a8f7"      # soft neon pink
+dim_foreground = "#b683d4"
+bright_foreground = "#ffd6ff"
+
+[colors.cursor]
+text   = "#1a0933"
+cursor = "#00f0ff"          # cyan beam
+
+[colors.selection]
+text       = "#1a0933"
+background = "#ff71ce"      # hot pink highlight
+
+# normal colors
+[colors.normal]
+black   = "#241734"
+red     = "#ff3caf"         # neon magenta
+green   = "#05ffa1"         # aqua mint
+yellow  = "#fffb96"         # pastel sun
+blue    = "#01cdfe"         # miami cyan
+magenta = "#b967ff"         # lavender neon
+cyan    = "#6effff"         # soft teal glow
+white   = "#fbe5ff"
+
+# bright colors — amped up
+[colors.bright]
+black   = "#4a3170"
+red     = "#ff71ce"
+green   = "#7dffbe"
+yellow  = "#ffffb3"
+blue    = "#4ad9ff"
+magenta = "#d294ff"
+cyan    = "#aaffff"
+white   = "#ffffff"
+
+# ── transparency bloom for glass effect ───────────────────────────
+[colors.footer_bar]
+background = "#2d1b47"
+foreground = "#f7a8f7"
+
+[bell]
+animation = "EaseOutExpo"
+duration  = 100
+color     = "#ff71ce"
+
+[scrolling]
+history    = 10000
+multiplier = 3
+
+[keyboard]
+bindings = [
+    { key = "V", mods = "Control|Shift", action = "Paste" },
+    { key = "C", mods = "Control|Shift", action = "Copy" },
+    { key = "Plus",  mods = "Control", action = "IncreaseFontSize" },
+    { key = "Minus", mods = "Control", action = "DecreaseFontSize" },
+    { key = "0",     mods = "Control", action = "ResetFontSize" },
+    { key = "F11",                     action = "ToggleFullscreen" },
+]

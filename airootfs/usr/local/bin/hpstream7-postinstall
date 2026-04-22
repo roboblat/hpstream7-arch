@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Post-install tweaks — run once after first boot on the installed system.
+set -euo pipefail
+GRN='\033[0;32m'; YEL='\033[1;33m'; NC='\033[0m'
+info() { echo -e "${GRN}[INFO]${NC}  $*"; }
+warn() { echo -e "${YEL}[WARN]${NC}  $*"; }
+
+[[ $EUID -eq 0 ]] || { echo "Run as root"; exit 1; }
+
+info "Enabling TLP power saving ..."
+systemctl enable --now tlp
+
+info "Setting I/O scheduler to mq-deadline for eMMC (mmcblk0) ..."
+echo mq-deadline > /sys/block/mmcblk0/queue/scheduler 2>/dev/null || true
+# persist via udev rule
+cat > /etc/udev/rules.d/60-io-scheduler.rules << 'EOF'
+ACTION=="add|change", KERNEL=="mmcblk[0-9]", ATTR{queue/rotational}=="0", \
+  ATTR{queue/scheduler}="mq-deadline"
+EOF
+
+info "Enabling periodic TRIM for eMMC longevity ..."
+systemctl enable --now fstrim.timer
+
+info "Configuring swappiness for low-RAM device ..."
+echo "vm.swappiness=80"        >> /etc/sysctl.d/99-hpstream7.conf
+echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-hpstream7.conf
+sysctl -p /etc/sysctl.d/99-hpstream7.conf
+
+info "Fetching touchscreen firmware (requires internet) ..."
+fix-touch || true
+
+info "Initializing Bluetooth (RTL8723BS UART attach) ..."
+fix-bluetooth || warn "Bluetooth init failed — run 'sudo fix-bluetooth' manually"
+
+info "Done! Reboot for all changes to take effect."

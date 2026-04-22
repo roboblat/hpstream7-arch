@@ -1,0 +1,64 @@
+# ============================================================
+# GitHub Actions — builds the HP Stream 7 ISO in the cloud and
+# attaches it to a release. Push to GitHub, trigger the workflow,
+# download the .iso — no local build tools needed.
+#
+# To use:
+#   1. Push this repo to GitHub
+#   2. Go to the "Actions" tab
+#   3. Run "Build HP Stream 7 ISO" manually, or push a tag like v1.0.0
+#   4. Download the ISO from the workflow artifacts (or release)
+# ============================================================
+name: Build HP Stream 7 ISO
+
+on:
+  workflow_dispatch:           # manual trigger
+  push:
+    tags:
+      - 'v*.*.*'               # auto-build on version tags
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged    # archiso needs loop devices
+
+    steps:
+      - name: Install build dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm \
+            archiso grub dosfstools mtools libisoburn \
+            squashfs-tools arch-install-scripts imagemagick \
+            wget git sudo
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Fetch touchscreen firmware
+        run: bash scripts/fetch_firmware.sh || true
+
+      - name: Generate vaporwave wallpaper
+        run: bash scripts/gen_wallpaper.sh || true
+
+      - name: Build ISO
+        run: bash scripts/build.sh
+
+      - name: Find ISO
+        id: iso
+        run: echo "path=$(ls out/*.iso | head -1)" >> $GITHUB_OUTPUT
+
+      - name: Upload as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hpstream7-arch-iso
+          path: out/*.iso
+          retention-days: 30
+
+      - name: Attach to release (if tagged)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/*.iso
+          generate_release_notes: true

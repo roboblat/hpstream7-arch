@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Onboard
+GenericName=On-screen Keyboard
+Comment=Touch keyboard for HP Stream 7
+Exec=onboard --not-show-in=GNOME --startup-notify=false
+Terminal=false
+Icon=onboard
+Categories=Accessibility;
+StartupNotify=false
+X-GNOME-Autostart-enabled=true
+Hidden=false

@@ -1,0 +1,63 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║   Starship — Vaporwave prompt                                    ║
+# ║   Triangular powerline segments, neon gradient                   ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+add_newline = true
+command_timeout = 500
+
+format = """
+[▓▒░](#ff71ce)\
+[ ](bg:#ff71ce fg:#1a0933)\
+[$username](bg:#ff71ce fg:#1a0933 bold)\
+[](fg:#ff71ce bg:#b967ff)\
+[ $directory](bg:#b967ff fg:#1a0933)\
+[](fg:#b967ff bg:#01cdfe)\
+[$git_branch$git_status](bg:#01cdfe fg:#1a0933)\
+[](fg:#01cdfe bg:#05ffa1)\
+[ $cmd_duration](bg:#05ffa1 fg:#1a0933)\
+[](fg:#05ffa1)
+[λ](fg:#ff71ce bold) """
+
+[username]
+show_always = true
+style_user = "bg:#ff71ce fg:#1a0933 bold"
+style_root = "bg:#ff3caf fg:#1a0933 bold"
+format = '[$user ]($style)'
+
+[directory]
+style = "bg:#b967ff fg:#1a0933 bold"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+home_symbol = " ~"
+
+[directory.substitutions]
+"Documents" = " "
+"Downloads" = " "
+"Music"     = " "
+"Pictures"  = " "
+
+[git_branch]
+symbol = " "
+style = "bg:#01cdfe fg:#1a0933 bold"
+format = '[ $symbol $branch ]($style)'
+
+[git_status]
+style = "bg:#01cdfe fg:#1a0933"
+format = '[$all_status$ahead_behind ]($style)'
+
+[cmd_duration]
+min_time = 500
+style = "bg:#05ffa1 fg:#1a0933"
+format = '[  $duration ]($style)'
+
+[character]
+success_symbol = "[λ](#05ffa1 bold)"
+error_symbol   = "[✗](#ff3caf bold)"
+
+[time]
+disabled = false
+time_format = "%H:%M"
+style = "bg:#4a3170"
+format = '[  $time ]($style)'

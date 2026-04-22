@@ -1,0 +1,10 @@
+# Force Silead MSSL1680 / Goodix touchscreen to be recognised as a touchscreen
+# (not a pointer) so libinput handles rotation correctly.
+
+SUBSYSTEM=="input", ATTRS{name}=="*silead*",   ENV{ID_INPUT_TOUCHSCREEN}="1"
+SUBSYSTEM=="input", ATTRS{name}=="*Goodix*",   ENV{ID_INPUT_TOUCHSCREEN}="1"
+SUBSYSTEM=="input", ATTRS{name}=="*MSSL1680*", ENV{ID_INPUT_TOUCHSCREEN}="1"
+
+# Give the RTL8723BS Bluetooth HCI a stable name
+SUBSYSTEM=="bluetooth", ATTRS{modalias}=="sdio:v024Cd0523*", \
+    SYMLINK+="hpstream7-bt"

@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Fix Silead MSSL1680 / Goodix touchscreen on HP Stream 7.
+# The Silead driver requires a firmware blob that is NOT in linux-firmware.
+# This script downloads it from the community firmware repo.
+set -euo pipefail
+
+GRN='\033[0;32m'; RED='\033[0;31m'; NC='\033[0m'
+info() { echo -e "${GRN}[INFO]${NC}  $*"; }
+die()  { echo -e "${RED}[ERROR]${NC} $*" >&2; exit 1; }
+
+[[ $EUID -eq 0 ]] || die "Run as root: sudo fix-touch"
+
+FW_DIR="/usr/lib/firmware/silead"
+FW_FILE="$FW_DIR/mssl1680.fw"
+# Community-maintained firmware collection for Silead touchscreens
+FW_URL="https://raw.githubusercontent.com/onitake/gsl-firmware/master/firmware/hp/stream7/mssl1680.fw"
+
+if [[ -f "$FW_FILE" ]]; then
+    info "Firmware already present at $FW_FILE"
+else
+    info "Downloading Silead MSSL1680 firmware ..."
+    mkdir -p "$FW_DIR"
+    wget -q --show-progress -O "$FW_FILE" "$FW_URL" \
+        || die "Download failed. Check your internet connection."
+    info "Firmware saved to $FW_FILE"
+fi
+
+info "Reloading silead driver ..."
+modprobe -r silead 2>/dev/null || true
+sleep 1
+modprobe silead
+
+sleep 2
+if grep -q "silead" /proc/bus/input/devices 2>/dev/null || \
+   ls /sys/bus/i2c/drivers/silead/ 2>/dev/null | grep -q .; then
+    info "Touchscreen driver loaded successfully."
+    info "Run 'xinput list' to verify the device is present."
+else
+    echo ""
+    echo "If silead didn't work, your device may use the Goodix driver instead:"
+    echo "  modprobe goodix"
+    echo "  xinput list"
+fi

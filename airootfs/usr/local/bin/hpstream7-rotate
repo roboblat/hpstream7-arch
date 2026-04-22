@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+"""
+Automatic screen rotation daemon for HP Stream 7.
+Reads accelerometer data via iio-sensor-proxy (D-Bus) and calls
+xrandr + xinput to rotate the display and remap the touchscreen.
+"""
+import subprocess
+import sys
+import time
+
+try:
+    import dbus
+    from dbus.mainloop.glib import DBusGMainLoop
+    from gi.repository import GLib
+except ImportError:
+    sys.exit("Missing deps: python-dbus, python-gobject. Install them first.")
+
+DISPLAY_OUTPUT = "DSI-1"   # check with: xrandr | grep connected
+
+ORIENTATIONS = {
+    "normal":           ("normal",        [ 1,  0,  0,   0,  1,  0,   0,  0,  1]),
+    "bottom-up":        ("inverted",      [-1,  0,  1,   0, -1,  1,   0,  0,  1]),
+    "right-up":         ("right",         [ 0,  1,  0,  -1,  0,  1,   0,  0,  1]),
+    "left-up":          ("left",          [ 0, -1,  1,   1,  0,  0,   0,  0,  1]),
+}
+
+_current = None
+
+
+def get_touch_device():
+    out = subprocess.check_output(["xinput", "list", "--name-only"]).decode()
+    for line in out.splitlines():
+        if "silead" in line.lower() or "goodix" in line.lower() or "touchscreen" in line.lower():
+            return line.strip()
+    return None
+
+
+def apply_rotation(orientation: str):
+    global _current
+    if orientation == _current:
+        return
+    xrandr_rot, matrix = ORIENTATIONS[orientation]
+    subprocess.run(["xrandr", "--output", DISPLAY_OUTPUT, "--rotate", xrandr_rot],
+                   check=False, env={"DISPLAY": ":0"})
+    touch = get_touch_device()
+    if touch:
+        mat = " ".join(map(str, matrix))
+        subprocess.run(
+            ["xinput", "set-prop", touch,
+             "Coordinate Transformation Matrix"] + list(map(str, matrix)),
+            check=False, env={"DISPLAY": ":0"}
+        )
+    _current = orientation
+
+
+def on_properties_changed(interface, changed, invalidated):
+    if "AccelerometerOrientation" in changed:
+        orientation = str(changed["AccelerometerOrientation"])
+        if orientation in ORIENTATIONS:
+            apply_rotation(orientation)
+
+
+def main():
+    DBusGMainLoop(set_as_default=True)
+    bus = dbus.SystemBus()
+    proxy = bus.get_object("net.hadess.SensorProxy", "/net/hadess/SensorProxy")
+    iface = dbus.Interface(proxy, "net.hadess.SensorProxy")
+    props = dbus.Interface(proxy, dbus.PROPERTIES_IFACE)
+
+    iface.ClaimAccelerometer()
+    bus.add_signal_receiver(
+        on_properties_changed,
+        signal_name="PropertiesChanged",
+        dbus_interface=dbus.PROPERTIES_IFACE,
+        path="/net/hadess/SensorProxy",
+    )
+
+    # apply current orientation on startup
+    current = str(props.Get("net.hadess.SensorProxy", "AccelerometerOrientation"))
+    apply_rotation(current if current in ORIENTATIONS else "normal")
+
+    GLib.MainLoop().run()
+
+
+if __name__ == "__main__":
+    main()

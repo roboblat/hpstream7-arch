@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Fix RTL8723BS Wi-Fi on HP Stream 7.
+# Run this if Wi-Fi is missing after boot.
+set -euo pipefail
+
+RED='\033[0;31m'; GRN='\033[0;32m'; NC='\033[0m'
+die() { echo -e "${RED}[ERROR]${NC} $*" >&2; exit 1; }
+info() { echo -e "${GRN}[INFO]${NC}  $*"; }
+
+[[ $EUID -eq 0 ]] || die "Run as root: sudo fix-wifi"
+
+# ── detect which driver name is in use ────────────────────────────────────────
+if modinfo rtl8723bs &>/dev/null; then
+    DRV="rtl8723bs"
+elif modinfo r8723bs &>/dev/null; then
+    DRV="r8723bs"
+else
+    info "Neither rtl8723bs nor r8723bs found. Attempting DKMS build..."
+    _build_rtl8723bs
+fi
+
+_build_rtl8723bs() {
+    which git &>/dev/null  || die "git not installed"
+    which make &>/dev/null || die "make not installed"
+    TMP=$(mktemp -d)
+    trap "rm -rf $TMP" EXIT
+    info "Cloning rtl8723bs source ..."
+    git clone --depth=1 https://github.com/lwfinger/rtl8723bs.git "$TMP/src"
+    cd "$TMP/src"
+    make -j"$(nproc)"
+    make install
+    DRV="rtl8723bs"
+}
+
+# ── reload driver ─────────────────────────────────────────────────────────────
+info "Reloading $DRV ..."
+modprobe -r "$DRV" 2>/dev/null || true
+sleep 1
+modprobe "$DRV"
+sleep 2
+
+# ── check result ──────────────────────────────────────────────────────────────
+if ip link | grep -q wlan; then
+    info "Wi-Fi interface detected."
+    systemctl restart NetworkManager
+    info "NetworkManager restarted. Use 'nmtui' to connect."
+else
+    die "No wlan interface found after loading $DRV. Check dmesg for errors."
+fi

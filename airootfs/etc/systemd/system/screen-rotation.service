@@ -1,0 +1,13 @@
+[Unit]
+Description=Automatic screen rotation for HP Stream 7
+After=graphical.target
+Wants=iio-sensor-proxy.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/hpstream7-rotate
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=graphical.target

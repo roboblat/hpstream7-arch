@@ -1,0 +1,18 @@
+#!/bin/sh
+# Openbox autostart — vaporwave session
+
+# compositor (transparency + glow)
+picom --config ~/.config/picom.conf &
+
+# wallpaper
+feh --bg-fill /usr/share/backgrounds/vaporwave/sunset.png &
+
+# notification daemon, network tray, clipboard
+lxpolkit &
+nm-applet &
+
+# bluetooth tray icon (touch-friendly pairing GUI)
+blueman-applet &
+
+# on-screen keyboard — essential, this tablet has NO physical keys
+sleep 2 && onboard &
