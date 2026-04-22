@@ -1,0 +1,126 @@
+# ── Base system ────────────────────────────────────────────────────────────────
+base
+base-devel
+linux
+linux-firmware
+linux-headers        # needed for out-of-tree RTL8723BS DKMS build
+
+# ── Boot & EFI ─────────────────────────────────────────────────────────────────
+grub                 # provides both grub-install x86_64 and ia32 efi targets
+efibootmgr
+dosfstools
+mtools
+
+# ── Filesystem tools ───────────────────────────────────────────────────────────
+e2fsprogs
+btrfs-progs
+f2fs-tools           # F2FS is great on eMMC (wear-levelling aware)
+exfatprogs
+ntfs-3g
+
+# ── Network ────────────────────────────────────────────────────────────────────
+networkmanager
+nm-connection-editor
+iwd                  # alternative WPA supplicant (lighter)
+dhcpcd
+openssh
+wget
+curl
+
+# ── Audio ──────────────────────────────────────────────────────────────────────
+alsa-utils
+alsa-firmware
+sof-firmware         # Intel Sound Open Firmware — required for Baytrail SST
+pipewire
+pipewire-alsa
+pipewire-pulse
+wireplumber
+
+# ── Input & display ────────────────────────────────────────────────────────────
+xf86-input-libinput  # touchscreen, stylus
+xf86-video-intel     # Intel Bay Trail graphics (i915)
+mesa
+libva-intel-driver   # VA-API hardware decode
+
+# ── Xorg / Wayland base ────────────────────────────────────────────────────────
+xorg-server
+xorg-xinput
+xorg-xrandr
+xorg-xset
+xorg-setxkbmap
+xorg-xrdb
+
+# ── Minimal desktop (LXDE — light enough for 1 GB RAM) ────────────────────────
+lxde
+lxdm                 # display manager
+lxterminal
+lxappearance
+openbox
+obconf
+
+# ── Bluetooth (RTL8723BS — UART-attached, not USB) ────────────────────────────
+bluez                # core stack
+bluez-utils          # bluetoothctl
+blueman              # GUI pairing tool (touch-friendly)
+pulseaudio-bluetooth # A2DP/HSP audio profile support
+
+# ── On-screen keyboard & touch tools (NO physical keyboard on this device) ────
+onboard              # on-screen keyboard — best touch support in LXDE
+xdotool              # screen rotation & touch helpers
+xinput_calibrator    # touchscreen calibration tool
+
+# ── Vaporwave terminal & shell ─────────────────────────────────────────────────
+alacritty            # GPU-accelerated terminal — looks great with custom colors
+zsh                  # better shell for the vaporwave prompt
+zsh-autosuggestions
+zsh-syntax-highlighting
+starship             # fast, customizable cross-shell prompt
+neofetch             # classic aesthetic system info
+lolcat               # rainbow text (vaporwave aesthetic)
+figlet               # ASCII art banners
+cmatrix              # bonus visual
+cava                 # audio visualizer
+btop                 # prettier htop
+ttf-jetbrains-mono-nerd    # patched font with icons
+adobe-source-code-pro-fonts
+ttf-fira-code
+papirus-icon-theme
+arc-gtk-theme        # base we'll recolor toward vaporwave
+feh                  # wallpaper setter
+picom                # compositor for transparency effects
+
+# ── System utilities ───────────────────────────────────────────────────────────
+sudo
+vim
+nano
+git
+htop
+tree
+zip
+unzip
+rsync
+parted
+gptfdisk
+arch-install-scripts  # genfstab, arch-chroot
+reflector
+pacman-contrib
+
+# ── Power management ───────────────────────────────────────────────────────────
+tlp                  # laptop/tablet power saving
+acpi
+acpid
+upower
+
+# ── Screen rotation ────────────────────────────────────────────────────────────
+iio-sensor-proxy     # accelerometer → automatic screen rotation
+python               # used by rotation helper script
+
+# ── Misc live-env tools ────────────────────────────────────────────────────────
+gparted
+firefox
+noto-fonts
+ttf-dejavu
+
+# ── Memory compression (critical on 1 GB RAM) ─────────────────────────────────
+# zram-generator is configured via /etc/systemd/zram-generator.conf
+zram-generator

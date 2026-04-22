@@ -2,6 +2,6 @@ out/
 *.iso
 airootfs/usr/share/backgrounds/vaporwave/*.png
 airootfs/usr/lib/firmware/silead/*.fw
-packages.x86_64
+/packages.x86_64
 .DS_Store
 Thumbs.db
