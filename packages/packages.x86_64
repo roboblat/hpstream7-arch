@@ -1,48 +1,54 @@
-# ── Base system ────────────────────────────────────────────────────────────────
+# HP Stream 7 package list
+# IMPORTANT: mkarchiso does NOT support inline comments.
+# Every comment must be on its own line.
+
+# ── Base system ──────────────────────────
 base
 base-devel
 linux
 linux-firmware
-linux-headers        # needed for out-of-tree RTL8723BS DKMS build
+# linux-headers needed for RTL8723BS DKMS build
+linux-headers
 
-# ── Boot & EFI ─────────────────────────────────────────────────────────────────
-grub                 # provides both grub-install x86_64 and ia32 efi targets
+# ── Boot & EFI ───────────────────────────
+grub
 efibootmgr
 dosfstools
 mtools
 
-# ── Filesystem tools ───────────────────────────────────────────────────────────
+# ── Filesystem tools ─────────────────────
 e2fsprogs
 btrfs-progs
-f2fs-tools           # F2FS is great on eMMC (wear-levelling aware)
+# F2FS is great on eMMC
+f2fs-tools
 exfatprogs
 ntfs-3g
 
-# ── Network ────────────────────────────────────────────────────────────────────
+# ── Network ──────────────────────────────
 networkmanager
 nm-connection-editor
-iwd                  # alternative WPA supplicant (lighter)
+iwd
 dhcpcd
 openssh
 wget
 curl
 
-# ── Audio ──────────────────────────────────────────────────────────────────────
+# ── Audio ────────────────────────────────
 alsa-utils
 alsa-firmware
-sof-firmware         # Intel Sound Open Firmware — required for Baytrail SST
+# Intel Sound Open Firmware — required for Baytrail SST
+sof-firmware
 pipewire
 pipewire-alsa
 pipewire-pulse
 wireplumber
 
-# ── Input & display ────────────────────────────────────────────────────────────
-xf86-input-libinput  # touchscreen, stylus
-xf86-video-intel     # Intel Bay Trail graphics (i915)
+# ── Graphics & input ─────────────────────
+xf86-input-libinput
 mesa
-libva-intel-driver   # VA-API hardware decode
+libva-intel-driver
 
-# ── Xorg / Wayland base ────────────────────────────────────────────────────────
+# ── Xorg base ────────────────────────────
 xorg-server
 xorg-xinput
 xorg-xrandr
@@ -50,46 +56,43 @@ xorg-xset
 xorg-setxkbmap
 xorg-xrdb
 
-# ── Minimal desktop (LXDE — light enough for 1 GB RAM) ────────────────────────
+# ── LXDE desktop ─────────────────────────
 lxde
-lxdm                 # display manager
+lxdm
 lxterminal
 lxappearance
 openbox
-obconf
 
-# ── Bluetooth (RTL8723BS — UART-attached, not USB) ────────────────────────────
-bluez                # core stack
-bluez-utils          # bluetoothctl
-blueman              # GUI pairing tool (touch-friendly)
-pulseaudio-bluetooth # A2DP/HSP audio profile support
+# ── Bluetooth (RTL8723BS UART) ───────────
+bluez
+bluez-utils
+blueman
+pulseaudio-bluetooth
 
-# ── On-screen keyboard & touch tools (NO physical keyboard on this device) ────
-onboard              # on-screen keyboard — best touch support in LXDE
-xdotool              # screen rotation & touch helpers
-xinput_calibrator    # touchscreen calibration tool
+# ── Touch / accessibility ────────────────
+onboard
+xdotool
 
-# ── Vaporwave terminal & shell ─────────────────────────────────────────────────
-alacritty            # GPU-accelerated terminal — looks great with custom colors
-zsh                  # better shell for the vaporwave prompt
+# ── Vaporwave terminal & shell ───────────
+alacritty
+zsh
+zsh-completions
 zsh-autosuggestions
 zsh-syntax-highlighting
-starship             # fast, customizable cross-shell prompt
-neofetch             # classic aesthetic system info
-lolcat               # rainbow text (vaporwave aesthetic)
-figlet               # ASCII art banners
-cmatrix              # bonus visual
-cava                 # audio visualizer
-btop                 # prettier htop
-ttf-jetbrains-mono-nerd    # patched font with icons
-adobe-source-code-pro-fonts
+starship
+neofetch
+lolcat
+figlet
+cmatrix
+btop
+ttf-jetbrains-mono-nerd
 ttf-fira-code
 papirus-icon-theme
-arc-gtk-theme        # base we'll recolor toward vaporwave
-feh                  # wallpaper setter
-picom                # compositor for transparency effects
+arc-gtk-theme
+feh
+picom
 
-# ── System utilities ───────────────────────────────────────────────────────────
+# ── System utilities ─────────────────────
 sudo
 vim
 nano
@@ -101,26 +104,25 @@ unzip
 rsync
 parted
 gptfdisk
-arch-install-scripts  # genfstab, arch-chroot
+arch-install-scripts
 reflector
 pacman-contrib
 
-# ── Power management ───────────────────────────────────────────────────────────
-tlp                  # laptop/tablet power saving
+# ── Power management ─────────────────────
+tlp
 acpi
 acpid
 upower
 
-# ── Screen rotation ────────────────────────────────────────────────────────────
-iio-sensor-proxy     # accelerometer → automatic screen rotation
-python               # used by rotation helper script
+# ── Screen rotation ──────────────────────
+iio-sensor-proxy
+python
 
-# ── Misc live-env tools ────────────────────────────────────────────────────────
+# ── Misc live-env tools ──────────────────
 gparted
 firefox
 noto-fonts
 ttf-dejavu
 
-# ── Memory compression (critical on 1 GB RAM) ─────────────────────────────────
-# zram-generator is configured via /etc/systemd/zram-generator.conf
+# ── Memory compression (critical on 1 GB RAM) ──
 zram-generator
