@@ -56,11 +56,20 @@ xorg-xset
 xorg-setxkbmap
 xorg-xrdb
 
-# ── LXDE desktop ─────────────────────────
-lxde
+# ── LXDE desktop (explicit members, not the group — group prompts) ─
+lxde-common
+lxde-icon-theme
+lxsession
+lxpanel
+lxrandr
+lxtask
+lxappearance
+lxappearance-obconf
 lxdm
 lxterminal
-lxappearance
+lxinput
+pcmanfm
+gpicview
 openbox
 
 # ── Bluetooth (RTL8723BS UART) ───────────
@@ -80,7 +89,7 @@ zsh-completions
 zsh-autosuggestions
 zsh-syntax-highlighting
 starship
-neofetch
+fastfetch
 lolcat
 figlet
 cmatrix
@@ -88,7 +97,7 @@ btop
 ttf-jetbrains-mono-nerd
 ttf-fira-code
 papirus-icon-theme
-arc-gtk-theme
+adw-gtk-theme
 feh
 picom
 

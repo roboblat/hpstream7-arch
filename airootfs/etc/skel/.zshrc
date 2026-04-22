@@ -28,9 +28,10 @@ alias la='ls -A --color=auto'
 alias grep='grep --color=auto'
 alias ..='cd ..'
 alias ...='cd ../..'
-alias fetch='neofetch'
+alias fetch='fastfetch'
+alias neofetch='fastfetch'   # muscle memory
 alias vibe='cmatrix -ab -C magenta'
-alias rice='neofetch | lolcat -F 0.3'
+alias rice='fastfetch | lolcat -F 0.3'
 
 # ── Starship prompt ────────────────────────────────────────────────
 eval "$(starship init zsh)"
@@ -43,5 +44,5 @@ if [[ -o interactive ]] && [[ -z "$SSH_CONNECTION" ]] && [[ -z "$ZSH_BANNER_SHOW
         echo "        ｖａｐｏｒｗａｖｅ ｔｅｒｍｉｎａｌ" | lolcat
         echo ""
     fi
-    neofetch 2>/dev/null | lolcat -F 0.1 2>/dev/null || neofetch 2>/dev/null
+    fastfetch 2>/dev/null | lolcat -F 0.1 2>/dev/null || fastfetch 2>/dev/null
 fi
