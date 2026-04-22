@@ -9,10 +9,9 @@ iso_version="$(date +%Y.%m.%d)"
 install_dir="arch"
 buildmodes=('iso')
 bootmodes=(
-    'uefi-ia32.grub.esp'   # 32-bit UEFI (primary — this tablet needs it)
-    'uefi-x64.grub.esp'    # 64-bit UEFI fallback
-    'bios.syslinux.mbr'    # legacy BIOS fallback
-    'bios.syslinux.eltorito'
+    'uefi-ia32.grub.esp'   # 32-bit UEFI — this tablet NEEDS this one
+    'uefi-x64.grub.esp'    # 64-bit UEFI (for other machines)
+    # Stream 7 has no legacy BIOS, so we skip syslinux entirely.
 )
 arch="x86_64"
 pacman_conf="pacman.conf"

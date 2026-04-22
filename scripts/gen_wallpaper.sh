@@ -35,11 +35,15 @@ magick -size 1280x400 xc:none "${GRID_DRAWS[@]}" \
     -alpha set -channel A -evaluate multiply 0.7 +channel /tmp/grid.png
 magick /tmp/base.png /tmp/grid.png -geometry +0+420 -composite /tmp/base.png
 
-# ── 4. title text ──────────────────────────────────────────────────────
-magick /tmp/base.png \
-    -pointsize 42 -fill "#ffffff" -gravity center \
-    -annotate +0-200 "AESTHETIC" \
-    "$OUT"
+# ── 4. finalize (skip text if no font available) ───────────────────────
+if magick -list font 2>/dev/null | grep -iq "dejavu\|liberation\|noto"; then
+    magick /tmp/base.png \
+        -pointsize 42 -fill "#ffffff" -gravity center \
+        -annotate +0-200 "AESTHETIC" \
+        "$OUT"
+else
+    cp /tmp/base.png "$OUT"
+fi
 
 rm -f /tmp/sky.png /tmp/horizon.png /tmp/base.png /tmp/sun.png /tmp/grid.png
 echo "Wallpaper written to $OUT"
