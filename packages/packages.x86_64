@@ -11,8 +11,7 @@ linux-firmware
 linux-headers
 # Explicit provider picks (prevents interactive pacman prompts)
 mkinitcpio
-iptables
-pipewire-jack
+iptables-nft
 
 # ── Boot & EFI ───────────────────────────
 grub
